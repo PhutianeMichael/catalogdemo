@@ -12,6 +12,7 @@ import { fetchProductCategories } from './api';
 import { Navigation } from './components/Navigation.tsx';
 import { CartPage } from './components/Cart.tsx';
 import { WishlistPage } from './components/Wishlist.tsx';
+import { SavedPage } from './components/Saved.tsx';
 
 export const userId = 'sdf12312asdas';
 
@@ -116,6 +117,9 @@ function App() {
         setCart((prevCart: Cart): Cart => ({...prevCart, items: [], totalCount: 0}));
     };
 
+    const handleClearSaved = () => {
+        setSave((prevCart: Saved): Saved => ({...prevCart, items: []}));
+    };
     const handleRemoveFromWishlist = (product: Product) => {
         setWishlist((prevCart: Wishlist): Wishlist => {
             const exist = prevCart.items.indexOf(product);
@@ -143,6 +147,18 @@ function App() {
                 items: newItems,
                 userId: prevState?.userId ?? userId,
             };
+        });
+    }
+
+    const handleRemoveFromSaved = (product: Product) => {
+        setSave((prevSaved): Saved => {
+            const exist = prevSaved.items.indexOf(product);
+            if (exist === -1) return {...prevSaved as Saved}
+
+            return ({
+                ...prevSaved,
+                items: [...prevSaved.items.filter(i => i.id !== product.id)]
+            })
         });
     }
 
@@ -250,6 +266,12 @@ function App() {
                     path="/wishlist"
                     element={<WishlistPage wishlist={wishlist} onRemove={handleRemoveFromWishlist} onAddToCart={handleAddToCart}
                                            clearWishlist={handleClearWishlist}/>}
+                />
+
+
+                <Route
+                    path="/saved"
+                    element={<SavedPage saved={save} onRemove={handleRemoveFromSaved} onClearSaved={handleClearSaved} onAddToCart={handleAddToCart}/>}
                 />
 
                 <Route
