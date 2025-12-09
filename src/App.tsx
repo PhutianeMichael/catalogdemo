@@ -10,6 +10,7 @@ import { ProductDetails } from './components/ProductDetails.tsx';
 import { loadJSON, saveJSON } from './utils/storage';
 import { fetchProductCategories } from './api';
 import { Navigation } from './components/Navigation.tsx';
+import { CartPage } from './components/Cart.tsx';
 
 export const userId = 'sdf12312asdas';
 
@@ -107,6 +108,11 @@ function App() {
             const totalCount = newItems.reduce((acc, item) => acc + item.quantity, 0);
             return {...prevCart, items: newItems, totalCount};
         });
+    };
+
+
+    const handleClearCart = () => {
+        setCart((prevCart: Cart): Cart => ({...prevCart, items: [], totalCount: 0}));
     };
 
 
@@ -222,6 +228,12 @@ function App() {
                                              save={save} handleToggleSaved={handleToggleSaved} favorite={favorite}
                                              handleToggleFavorite={handleToggleFavorite}
                                              handleToggleWishlist={handleToggleWishlist}/>}
+                />
+
+                <Route
+                    path="/cart"
+                    element={<CartPage cart={cart} increment={incrementCartItem} decrement={decrementCartItem}
+                                       clearCart={handleClearCart}/>}
                 />
             </Routes>
         </>
