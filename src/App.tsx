@@ -11,6 +11,7 @@ import { loadJSON, saveJSON } from './utils/storage';
 import { fetchProductCategories } from './api';
 import { Navigation } from './components/Navigation.tsx';
 import { CartPage } from './components/Cart.tsx';
+import { WishlistPage } from './components/Wishlist.tsx';
 
 export const userId = 'sdf12312asdas';
 
@@ -115,6 +116,21 @@ function App() {
         setCart((prevCart: Cart): Cart => ({...prevCart, items: [], totalCount: 0}));
     };
 
+    const handleRemoveFromWishlist = (product: Product) => {
+        setWishlist((prevCart: Wishlist): Wishlist => {
+            const exist = prevCart.items.indexOf(product);
+            if (exist === -1) return {...prevCart as Wishlist}
+
+            return ({
+                ...prevCart,
+                items: [...prevCart.items.filter(i => i.id !== product.id)]
+            })
+        });
+    };
+
+    const handleClearWishlist = () => {
+        setWishlist((prevSaved): Saved => ({...prevSaved, items: []}));
+    }
 
     const handleToggleFavorite = (product: Product, _value: boolean) => {
         console.log('isFavorite: ', _value);
@@ -228,6 +244,12 @@ function App() {
                                              save={save} handleToggleSaved={handleToggleSaved} favorite={favorite}
                                              handleToggleFavorite={handleToggleFavorite}
                                              handleToggleWishlist={handleToggleWishlist}/>}
+                />
+
+                <Route
+                    path="/wishlist"
+                    element={<WishlistPage wishlist={wishlist} onRemove={handleRemoveFromWishlist} onAddToCart={handleAddToCart}
+                                           clearWishlist={handleClearWishlist}/>}
                 />
 
                 <Route
