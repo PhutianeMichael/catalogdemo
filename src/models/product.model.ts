@@ -48,6 +48,11 @@ export interface Meta {
     qrCode: string
 }
 
+export interface Favorite {
+    userId: string
+    items: Product[]
+}
+
 export interface CartItem {
     item: Product,
     quantity: number
@@ -57,4 +62,13 @@ export interface Cart {
     userId: string
     items: CartItem[],
     totalCount: number
+}
+
+export interface Saved {
+    userId: string
+    items: Product[]
+}
+export interface Wishlist {
+    userId: string
+    items: Product[]
 }
