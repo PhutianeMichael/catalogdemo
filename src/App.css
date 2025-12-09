@@ -1,0 +1,66 @@
+.card-image {
+    /* Use aspect-ratio so images scale proportionally across devices.
+       Default: crop (cover) to keep consistent card heights on desktop/tablet. */
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+    background-color: #f8f9fa; /* subtle bg while loading */
+}
+
+/* On small screens avoid cropping important parts: show entire image without cropping */
+@media (max-width: 576px) {
+    .card-image {
+        aspect-ratio: 4 / 3;
+        object-fit: contain; /* show full image, may letterbox */
+        background-color: #f3f3f3;
+    }
+}
+
+/* Provide a subtle placeholder background when images are missing */
+.card .card-img-top[src="/placeholder.png"] {
+    background: linear-gradient(135deg,#f3f3f3,#e2e2e2);
+    min-height: 120px;
+}
+
+/* Ensure card bodies don't overflow and text truncates neatly */
+.card-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Heart pop animation when toggling favorite */
+.heart-anim {
+    animation: heart-pop 360ms cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes heart-pop {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    60% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+/* Favorite button subtle transitions (color/outline/shadow) */
+.favorite-btn {
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease;
+    padding: 8px;
+    border-radius: 50%;
+}
+.favorite-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255,0,0,0.15);
+}
+.favorite-btn.btn-light {
+    background-color: rgba(255,255,255,0.9);
+}
+.favorite-btn.btn-danger {
+    color: #fff;
+}
+.favorite-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
