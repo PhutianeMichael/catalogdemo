@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# Catalog Explorer App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A small React + Vite catalog explorer demo application with a json-server mock API. It demonstrates browsing products, search, filtering, sorting, saved items (favorites/wishlist), and a mock categories endpoint.
 
-Currently, two official plugins are available:
+Here is how to run the app locally.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Quick start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Prerequisites:
+- Node.js 18+ (preferred)
 
-## Expanding the ESLint configuration
+Install dependencies:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Run the mock API (json-server) which serves `/products` and `/categories` (port 4001):
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+npm run mock
 ```
+
+Start the Vite dev server:
+
+```powershell
+npm run dev
+```
+
+Open the app in your browser at the URL printed by Vite (usually http://localhost:5173).
+
+---
+
+## Available scripts
+
+- `npm run dev` - start the Vite development server
+- `npm run build` - run TypeScript build and produce a production build with Vite
+- `npm run preview` - preview the production build
+- `npm run mock` - start json-server watching `catalog-db.json` on port `4001`
+- `npm run lint` - run ESLint
+
+---
+
+## API / Mock server
+
+The project uses `json-server` with `catalog-db.json` as the data source.
+
+Endpoints exposed by the mock server (default: http://localhost:4001):
+
+- `GET /products` - returns product list; supports json-server query params like `_page`, `_limit`, `_sort`, `_order`, and `q` for simple full-text search
+- `GET /products/:id` - single product
+- `GET /categories` - list of category strings (added to top-level `catalog-db.json` so the endpoint is available)
+
+If you need to regenerate or update the `categories` array inside `catalog-db.json`, there's a helper script:
+
+```powershell
+node scripts/add-categories.mjs
+```
+
+This will overwrite `catalog-db.json` with a top-level `categories` array (deduped, sorted) and the existing `products` array.
+
+---
+
+
+## Developer notes
+
+- The mock API base is `http://localhost:4001` by default. override the base by setting the `VITE_API_BASE` environment variable.
+- The project keeps product-data in `catalog-db.json`.
+- API helpers in `src/api.ts` (fetchProducts, searchProducts, fetchProductById, fetchProductCategories).
+
+---

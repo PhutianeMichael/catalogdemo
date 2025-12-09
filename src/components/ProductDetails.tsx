@@ -260,7 +260,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ cart, addToCart,
                                 aria-pressed={wishlisted}
                                 aria-label={wishlisted ? `Added ${product?.name} to wishlist` : `Add ${product?.name} to wishlist`}
                             >
-                                {wishlisted ? ' Remove from wishlist' : ' Add to wishlist'}
+                                Add to wishlist {wishlisted ? ' Remove from wishlist' : ' Add to wishlist'}
                             </button>
 
                             <button

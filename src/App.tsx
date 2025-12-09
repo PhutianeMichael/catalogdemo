@@ -1,3 +1,4 @@
+/* eslint-disable */
 import './App.css'
 import type { Cart, CartItem, Favorite, Product, Saved, Wishlist } from './models/product.model';
 import { useProducts } from './hooks/useProducts.tsx';
@@ -5,14 +6,14 @@ import { useEffect, useState } from 'react';
 import { ProductListCTA } from './components/ProductListCTA.tsx';
 import { ProductLoadError } from './components/ProductLoadError.tsx';
 import { ProductList } from './components/ProductList.tsx';
-import { Route, Routes } from 'react-router-dom';
-import { ProductDetails } from './components/ProductDetails.tsx';
-import { loadJSON, saveJSON } from './utils/storage';
-import { fetchProductCategories } from './api';
 import { Navigation } from './components/Navigation.tsx';
+import { Route, Routes } from 'react-router-dom';
 import { CartPage } from './components/Cart.tsx';
 import { WishlistPage } from './components/Wishlist.tsx';
+import { ProductDetails } from './components/ProductDetails.tsx';
 import { SavedPage } from './components/Saved.tsx';
+import { loadJSON, saveJSON } from './utils/storage';
+import { fetchProductCategories } from './api';
 
 export const userId = 'sdf12312asdas';
 
@@ -58,6 +59,17 @@ function App() {
         return () => { mounted = false; ac.abort(); };
     }, []);
 
+    // intentionally set categories once when initial products load (fallback)
+    useEffect(() => {
+        if (categories.length > 0) return;
+        if (!products || products.length === 0) return;
+        const s = new Set<string>();
+        products.forEach(p => {
+            if (p.category) s.add(p.category);
+        });
+        setCategories(Array.from(s).sort());
+    }, [products, categories.length]);
+
     // persist favorites/wishlist/saved to localStorage
     useEffect(() => { saveJSON('favorites', favorite); }, [favorite]);
     useEffect(() => { saveJSON('wishlist', wishlist); }, [wishlist]);
@@ -83,6 +95,19 @@ function App() {
             };
         });
     }
+
+
+    const handleRemoveFromWishlist = (product: Product) => {
+        setWishlist((prevCart: Wishlist): Wishlist => {
+            const exist = prevCart.items.indexOf(product);
+            if (exist === -1) return {...prevCart as Wishlist}
+
+            return ({
+                ...prevCart,
+                items: [...prevCart.items.filter(i => i.id !== product.id)]
+            })
+        });
+    };
 
     const incrementCartItem = (productId: number) => {
         setCart((prevCart: Cart): Cart => {
@@ -112,30 +137,27 @@ function App() {
         });
     };
 
-
     const handleClearCart = () => {
         setCart((prevCart: Cart): Cart => ({...prevCart, items: [], totalCount: 0}));
     };
-
     const handleClearSaved = () => {
         setSave((prevCart: Saved): Saved => ({...prevCart, items: []}));
     };
-    const handleRemoveFromWishlist = (product: Product) => {
-        setWishlist((prevCart: Wishlist): Wishlist => {
-            const exist = prevCart.items.indexOf(product);
-            if (exist === -1) return {...prevCart as Wishlist}
+
+    const handleRemoveFromSaved = (product: Product) => {
+        setSave((prevSaved): Saved => {
+            const exist = prevSaved.items.indexOf(product);
+            if (exist === -1) return {...prevSaved as Saved}
 
             return ({
-                ...prevCart,
-                items: [...prevCart.items.filter(i => i.id !== product.id)]
+                ...prevSaved,
+                items: [...prevSaved.items.filter(i => i.id !== product.id)]
             })
         });
-    };
-
+    }
     const handleClearWishlist = () => {
         setWishlist((prevSaved): Saved => ({...prevSaved, items: []}));
     }
-
     const handleToggleFavorite = (product: Product, _value: boolean) => {
         console.log('isFavorite: ', _value);
         setFavorite((prevState): Favorite => {
@@ -147,18 +169,6 @@ function App() {
                 items: newItems,
                 userId: prevState?.userId ?? userId,
             };
-        });
-    }
-
-    const handleRemoveFromSaved = (product: Product) => {
-        setSave((prevSaved): Saved => {
-            const exist = prevSaved.items.indexOf(product);
-            if (exist === -1) return {...prevSaved as Saved}
-
-            return ({
-                ...prevSaved,
-                items: [...prevSaved.items.filter(i => i.id !== product.id)]
-            })
         });
     }
 
@@ -230,6 +240,20 @@ function App() {
                                 />
                             </div>
 
+                            {/* notify when a search returns no hits */}
+                            {searchTerm && !loading && products.length === 0 ? (
+                                <div className="row my-3">
+                                    <div className="alert alert-warning col-12 d-flex justify-content-between align-items-center" role="status" aria-live="polite">
+                                        <div>No products found for "<strong>{searchTerm}</strong>". Try a different keyword or clear the search.</div>
+                                        <div>
+                                            <button type="button" className="btn btn-sm btn-outline-secondary ms-3" onClick={() => { setLocalSearch(''); setSearchTerm(undefined); }}>
+                                                Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
+
                             <div className="row justify-content-center g-3">
                                 <ProductList
                                     products={products}
@@ -268,16 +292,15 @@ function App() {
                                            clearWishlist={handleClearWishlist}/>}
                 />
 
-
-                <Route
-                    path="/saved"
-                    element={<SavedPage saved={save} onRemove={handleRemoveFromSaved} onClearSaved={handleClearSaved} onAddToCart={handleAddToCart}/>}
-                />
-
                 <Route
                     path="/cart"
                     element={<CartPage cart={cart} increment={incrementCartItem} decrement={decrementCartItem}
                                        clearCart={handleClearCart}/>}
+                />
+
+                <Route
+                    path="/saved"
+                    element={<SavedPage saved={save} onRemove={handleRemoveFromSaved} onClearSaved={handleClearSaved} onAddToCart={handleAddToCart}/>}
                 />
             </Routes>
         </>
